@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "mcp-server-command": {
+      "command": "java",
+      "args": [
+        "-jar",
+        "/Users/bruno/Developer/workspaces/claude/mcp-server-command/build/libs/mcp-server-command-0.5.0.jar"
+      ]
+    }
+  }
+}
