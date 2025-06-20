@@ -54,7 +54,7 @@ Follow these coding standards:
 #### Code Organization
 ```java
 // Example class structure
-package com.example.mcp.server.command;
+package com.brunorozendo.mcp.server.command;
 
 import statements...
 

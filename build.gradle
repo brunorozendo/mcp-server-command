@@ -1,12 +1,17 @@
 plugins {
     id 'java'
     id 'application'
+    id 'groovy'
+    id 'jacoco' // For code coverage
 }
 
-group = 'com.example'
+group = 'com.brunorozendo'
 version = '0.5.0'
-sourceCompatibility = '21'
-targetCompatibility = '21'
+
+java {
+    sourceCompatibility = '21'
+    targetCompatibility = '21'
+}
 
 repositories {
     mavenCentral()
@@ -19,13 +24,17 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.3'
     implementation 'com.fasterxml.jackson.core:jackson-core:2.15.3'
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.15.3'
-    
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // Spock and Groovy for testing
+    testImplementation platform('org.spockframework:spock-bom:2.4-M6-groovy-4.0')
+    testImplementation 'org.spockframework:spock-core'
+
+    // Spock reports
+    testImplementation "com.athaydes:spock-reports:2.5.1-groovy-4.0"
 }
 
 application {
-    mainClass = 'com.example.mcp.server.command.McpCommandServer'
+    mainClass = 'com.brunorozendo.mcp.server.command.McpCommandServer'
 }
 
 tasks.named('test') {
@@ -36,11 +45,21 @@ tasks.named('test') {
 jar {
     manifest {
         attributes(
-            'Main-Class': 'com.example.mcp.server.command.McpCommandServer'
+            'Main-Class': 'com.brunorozendo.mcp.server.command.McpCommandServer'
         )
     }
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+
+test{
+    useJUnitPlatform()
+    testLogging {
+        //events "FAILED","PASSED","SKIPPED","STANDARD_ERROR","STANDARD_OUT","STARTED"
+        events "FAILED","PASSED","SKIPPED"
+    }
+    finalizedBy jacocoTestReport // Generate report after tests run
 }

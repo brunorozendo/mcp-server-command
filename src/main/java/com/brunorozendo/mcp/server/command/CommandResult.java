@@ -1,4 +1,4 @@
-package com.example.mcp.server.command;
+package com.brunorozendo.mcp.server.command;
 
 public class CommandResult {
     private String stdout = "";
