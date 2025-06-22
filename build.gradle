@@ -39,10 +39,6 @@ application {
     mainClass = 'com.brunorozendo.mcp.server.command.McpCommandServer'
 }
 
-tasks.named('test') {
-    useJUnitPlatform()
-}
-
 // Create a fat jar for easier distribution
 jar {
     manifest {
