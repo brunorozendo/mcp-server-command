@@ -10,7 +10,7 @@ A Model Context Protocol (MCP) server that enables secure command execution on t
 - **Cross-Platform**: Works on macOS, Linux, and Windows
 - **Timeout Protection**: Commands timeout after 60 seconds to prevent hanging
 - **Special Fish Shell Support**: Enhanced handling for the Fish shell
-- **Verbose Logging**: Optional verbose mode for debugging
+- **Advanced Logging**: Powered by Logback with configurable log levels (ERROR, WARN, INFO, DEBUG, TRACE), optional file logging, and rolling file support
 
 ## Prerequisites
 
@@ -65,9 +65,11 @@ If you have a pre-built JAR, skip the building step and proceed to configuration
 
 3. Restart Claude Desktop to load the new server
 
-### Enabling Verbose Logging
+### Configuring Logging
 
-To enable verbose logging, add `--verbose` to the args:
+#### Basic Configuration
+
+To set the logging level, add `--log-level` with the desired level to the args:
 ```json
 {
   "mcpServers": {
@@ -76,12 +78,54 @@ To enable verbose logging, add `--verbose` to the args:
       "args": [
         "-jar",
         "/absolute/path/to/mcp-server-command-0.5.0.jar",
-        "--verbose"
+        "--log-level",
+        "DEBUG"
       ]
     }
   }
 }
 ```
+
+Available log levels:
+- `ERROR` - Only error messages
+- `WARN` - Warnings and errors
+- `INFO` - General information (default)
+- `DEBUG` - Detailed debugging information
+- `TRACE` - Most verbose logging
+
+#### Advanced Configuration with File Logging
+
+File logging is enabled by default. All logs are written to a file in the `logs` directory. You can customize the logs directory using the `logs.dir` system property:
+
+```json
+{
+  "mcpServers": {
+    "mcp-server-command": {
+      "command": "java",
+      "args": [
+        "-jar",
+        "-Dlogs.dir=/var/log/mcp",
+        "-Dfile.logging.enabled=true",
+        "/absolute/path/to/mcp-server-command-0.5.0.jar",
+        "--log-level",
+        "INFO"
+      ]
+    }
+  }
+}
+```
+
+Logging system properties:
+- `logs.dir` - Directory for log files (default: logs)
+- `file.logging.enabled` - Enable or disable file logging (default: true)
+- `log.level` - Main application log level (default: INFO)
+- `mcp.log.level` - Separate log level for MCP framework (default: WARN)
+
+Log files:
+- Written to both console and file (`application.log` in the logs directory)
+- Rotated based on size (10MB) and time (daily)
+- Compressed and archived in the `logs/archived` directory
+- Kept for 30 days with a total size cap of 1GB
 
 ## Usage
 
@@ -201,7 +245,7 @@ Create distribution archives (ZIP and TAR):
 4. Restart Claude Desktop after configuration changes
 
 ### Commands failing
-1. Enable verbose logging to see detailed error messages
+1. Set log level to DEBUG or TRACE to see detailed error messages
 2. Check file permissions for the working directory
 3. Verify the command syntax is correct for your shell
 4. Test commands directly in terminal first
@@ -246,7 +290,13 @@ fish -c "echo $USER"
   - Working directory support
   - STDIN support
   - Special Fish shell handling
-  - Verbose logging option
+  - Advanced Logback-based logging with file rotation support
+
+### Custom Logback Configuration
+
+For advanced users, you can provide your own `logback.xml` configuration file:
+1. Create your custom `logback.xml`
+2. Place it in the classpath or specify its location with `-Dlogback.configurationFile=/path/to/logback.xml`
 
 ## License
 
@@ -260,5 +310,5 @@ fish -c "echo $USER"
 
 For issues and questions:
 - Check the troubleshooting section
-- Enable verbose logging for debugging
+- Set appropriate log level for debugging
 - [Add support contact/repository issues link]
