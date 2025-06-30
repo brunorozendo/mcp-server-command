@@ -24,8 +24,8 @@ import java.util.HashMap;
 public class McpCommandServer {
     private static final Logger logger = LoggerFactory.getLogger(McpCommandServer.class);
 
-    private static final String PACKAGE_NAME = "mcp-server-command";
-    private static final String PACKAGE_VERSION = "0.5.0";
+    public static final String PACKAGE_NAME = "mcp-server-command";
+    public static final String PACKAGE_VERSION = "0.5.0";
 
     private final CommandExecutor commandExecutor;
 
@@ -99,7 +99,7 @@ public class McpCommandServer {
     }
 
 
-    private CallToolResult handleRunCommand(McpSyncServerExchange exchange, Map<String, Object> args) {
+    public CallToolResult handleRunCommand(McpSyncServerExchange exchange, Map<String, Object> args) {
         logger.debug("ToolRequest: {}", args);
 
         String command = (String) args.get("command");

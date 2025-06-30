@@ -15,8 +15,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class CommandExecutor {
-    private static final Logger logger = LoggerFactory.getLogger(CommandExecutor.class);
-    private static final int DEFAULT_TIMEOUT_SECONDS = 5;
+    public static final Logger logger = LoggerFactory.getLogger(CommandExecutor.class);
+    public static final int DEFAULT_TIMEOUT_SECONDS = 60;
 
     public CommandResult execute(String command, String workdir, String stdin) throws IOException, InterruptedException {
         logger.debug("Executing command: {}, workdir: {}, stdin: {}", command, workdir, stdin != null ? "provided" : "none");
@@ -45,13 +45,26 @@ public class CommandExecutor {
             try (Writer writer = new OutputStreamWriter(process.getOutputStream(), StandardCharsets.UTF_8)) {
                 writer.write(stdin);
                 writer.flush();
+            } catch (IOException e) {
+                // Handle the case where the process has already exited and closed its input stream
+                logger.debug("Failed to write stdin to process (process may have already exited): {}", e.getMessage());
+                // Continue execution - this is not a fatal error
             }
         } else {
             // Close stdin to prevent commands like 'cat' from hanging
-            process.getOutputStream().close();
+            try {
+                process.getOutputStream().close();
+            } catch (IOException e) {
+                // Process may have already closed - not a fatal error
+                logger.debug("Failed to close process output stream: {}", e.getMessage());
+            }
         }
 
         // Read output and error streams
+        return getCommandResult(process);
+    }
+
+    private static CommandResult getCommandResult(Process process) throws IOException, InterruptedException {
         StringBuilder stdout = new StringBuilder();
         StringBuilder stderr = new StringBuilder();
 
@@ -127,38 +140,7 @@ public class CommandExecutor {
         Process process = processBuilder.start();
 
         // Read output and error streams
-        StringBuilder stdout = new StringBuilder();
-        StringBuilder stderr = new StringBuilder();
-
-        try (BufferedReader stdoutReader = new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8));
-             BufferedReader stderrReader = new BufferedReader(new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8))) {
-
-            String line;
-            while ((line = stdoutReader.readLine()) != null) {
-                stdout.append(line).append("\n");
-            }
-            while ((line = stderrReader.readLine()) != null) {
-                stderr.append(line).append("\n");
-            }
-        }
-
-        boolean completed = process.waitFor(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-        if (!completed) {
-            process.destroyForcibly();
-            throw new RuntimeException("Command timed out after " + DEFAULT_TIMEOUT_SECONDS + " seconds");
-        }
-
-        int exitCode = process.exitValue();
-        CommandResult result = new CommandResult();
-        result.setStdout(stdout.toString().trim());
-        result.setStderr(stderr.toString().trim());
-        result.setError(exitCode != 0);
-
-        if (exitCode != 0) {
-            result.setMessage("Command failed with exit code: " + exitCode);
-        }
-
-        return result;
+        return getCommandResult(process);
     }
 
     private List<String> parseCommand(String command) {

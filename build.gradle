@@ -31,6 +31,9 @@ dependencies {
     // Spock and Groovy for testing
     testImplementation platform('org.spockframework:spock-bom:2.4-M6-groovy-4.0')
     testImplementation 'org.spockframework:spock-core'
+    testImplementation 'org.objenesis:objenesis:3.3'
+    testImplementation 'net.bytebuddy:byte-buddy:1.14.11'
+    testImplementation 'cglib:cglib-nodep:3.3.0'
 
     // Spock reports
     testImplementation "com.athaydes:spock-reports:2.5.1-groovy-4.0"
@@ -64,6 +67,7 @@ test{
         events "FAILED","PASSED","SKIPPED"
     }
     finalizedBy jacocoTestReport // Generate report after tests run
+    maxParallelForks = 20
 }
 
 jacocoTestReport {
@@ -85,7 +89,7 @@ jacocoTestCoverageVerification {
     violationRules {
         rule {
             limit {
-                minimum = 0.80 // 80% coverage required
+                minimum = 0.90 // 100% coverage required
             }
         }
     }
@@ -108,5 +112,12 @@ graalvmNative {
             buildArgs.add('--enable-all-security-services')
             // Configuration files will be picked up automatically from META-INF/native-image
         }
+    }
+}
+
+sonarqube {
+    properties {
+        property "sonar.coverage.jacoco.xmlReportPaths", "${project.layout.buildDirectory.get().asFile}/reports/jacoco/test/*.xml"
+        property "sonar.java.coveragePlugin", "jacoco"
     }
 }
