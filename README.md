@@ -48,7 +48,7 @@ If you have a pre-built JAR, skip the building step and proceed to configuration
    - Windows: `%APPDATA%\Claude\claude_desktop_config.json`
    - Linux: `~/.config/Claude/claude_desktop_config.json`
 
-2. Add the MCP server configuration:
+2.1 Add the MCP server configuration - Java:
 ```json
 {
   "mcpServers": {
@@ -57,75 +57,35 @@ If you have a pre-built JAR, skip the building step and proceed to configuration
       "args": [
         "-jar",
         "/absolute/path/to/mcp-server-command-0.5.0.jar"
-      ]
+      ],
+      "env":{
+        "LOG_DIR":"/Users/<username>/Library/Logs/Claude",
+        "LOG_LEVEL":"DEBUG"
+      }
     }
   }
 }
 ```
+
+2.1 Add the MCP server configuration - Native:
+```json
+{
+  "mcpServers": {
+    "mcp-server-command": {
+      "command": "/path/to/build/native/nativeCompile/mcp-server-command",
+      "env":{
+        "LOG_DIR":"/Users/<username>/Library/Logs/Claude",
+        "LOG_LEVEL":"DEBUG"
+      }
+    }
+  }
+}
+```
+
+
+
 
 3. Restart Claude Desktop to load the new server
-
-### Configuring Logging
-
-#### Basic Configuration
-
-To set the logging level, add `--log-level` with the desired level to the args:
-```json
-{
-  "mcpServers": {
-    "mcp-server-command": {
-      "command": "java",
-      "args": [
-        "-jar",
-        "/absolute/path/to/mcp-server-command-0.5.0.jar",
-        "--log-level",
-        "DEBUG"
-      ]
-    }
-  }
-}
-```
-
-Available log levels:
-- `ERROR` - Only error messages
-- `WARN` - Warnings and errors
-- `INFO` - General information (default)
-- `DEBUG` - Detailed debugging information
-- `TRACE` - Most verbose logging
-
-#### Advanced Configuration with File Logging
-
-File logging is enabled by default. All logs are written to a file in the `logs` directory. You can customize the logs directory using the `logs.dir` system property:
-
-```json
-{
-  "mcpServers": {
-    "mcp-server-command": {
-      "command": "java",
-      "args": [
-        "-jar",
-        "-Dlogs.dir=/var/log/mcp",
-        "-Dfile.logging.enabled=true",
-        "/absolute/path/to/mcp-server-command-0.5.0.jar",
-        "--log-level",
-        "INFO"
-      ]
-    }
-  }
-}
-```
-
-Logging system properties:
-- `logs.dir` - Directory for log files (default: logs)
-- `file.logging.enabled` - Enable or disable file logging (default: true)
-- `log.level` - Main application log level (default: INFO)
-- `mcp.log.level` - Separate log level for MCP framework (default: WARN)
-
-Log files:
-- Written to both console and file (`application.log` in the logs directory)
-- Rotated based on size (10MB) and time (daily)
-- Compressed and archived in the `logs/archived` directory
-- Kept for 30 days with a total size cap of 1GB
 
 ## Usage
 

@@ -4,6 +4,7 @@ plugins {
     id 'groovy'
     id 'jacoco' // For code coverage
     id 'org.graalvm.buildtools.native' version '0.10.6'
+    id 'org.sonarqube' version '6.2.0.5505'
 }
 
 group = 'com.brunorozendo'
